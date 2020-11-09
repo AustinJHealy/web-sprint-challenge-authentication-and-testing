@@ -1,10 +1,10 @@
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
-
-const authenticate = require("../auth/authenticate-middleware.js");
 const authRouter = require("../auth/auth-router.js");
 const jokesRouter = require("../jokes/jokes-router.js");
+
+const authenticate = require("../auth/authenticate-middleware.js");
 
 function verifyRole(user) {
   return (req, res, next) => {
