@@ -9,7 +9,7 @@ router.post("/register", (req, res) => {
 
   const validateResult = validateUser(user);
   if (validateResult.isSuccessful === true) {
-    const hash = bcrypt.hashSync(user.password, 10);
+    const hash = bcrypt.hashSync(user.password, 8);
     user.password = hash;
 
     Users.add(user)
@@ -21,12 +21,28 @@ router.post("/register", (req, res) => {
         res.status(500).json({ message: "Error adding user", err });
       });
   } else {
-    res.status(400).json({ Message: "User not valid", errors: validateUser(user) });
+    res
+      .status(400)
+      .json({ Message: "User not valid", errors: validateUser(user) });
   }
 });
 
 router.post("/login", (req, res) => {
-  // implement login
+  let { username, password } = req.body;
+
+  Users.findBy({ username })
+    .first()
+    .then((user) => {
+      if (user && bcrypt.compareSync(password, user.password)) {
+        const token = newToken(user);
+        res.status(200).json({ Message: `Welcome ${user.username}`, token });
+      } else {
+        res.status(401).json({ Message: "Invalid Credentials" });
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({ Message: "Could not log in" });
+    });
 });
 
 module.exports = router;
